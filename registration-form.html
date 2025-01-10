@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter ID Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-weight: bold;
+            display: block;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-group input[type="file"] {
+            padding: 5px;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Voter ID Application Form</h2>
+        <form id="registrationform">
+            <div class="form-group">
+                <label for="full_name">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" required placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="address">Permanent Address:</label>
+                <textarea id="address" name="address" rows="4" required placeholder="Enter your permanent address"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email address">
+            </div>
+            <div class="form-group">
+                <label for="password">password:</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number">
+            </div>
+            <div class="form-group">
+                <label for="proof_of_age">Proof of Age:</label>
+                <input type="file" id="proof_of_age" name="proof_of_age" accept=".jpg, .jpeg, .png, .pdf" required>
+            </div>
+            <div class="form-group">
+                <label for="proof_of_residence">Proof of Residence:</label>
+                <input type="file" id="proof_of_residence" name="proof_of_residence" accept=".jpg, .jpeg, .png, .pdf" required>
+            </div>
+            <div class="form-group">
+                <label for="photo">Passport-size Photograph:</label>
+                <input type="file" id="photo" name="photo" accept=".jpg, .jpeg, .png" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit Application</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/du0elupoz/upload";
+        const CLOUDINARY_UPLOAD_PRESET = "files_upload";
+
+       // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+        apiKey: "AIzaSyA0XyCf4bb9l14Zievdu7yG5qjSAkLtEhA",
+        authDomain: "voter-id-approval-83138.firebaseapp.com",
+        projectId: "voter-id-approval-83138",
+        storageBucket: "voter-id-approval-83138.firebasestorage.app",
+        messagingSenderId: "864450577257",
+        appId: "1:864450577257:web:bf4749989652626ce033f8",
+        measurementId: "G-9C8RPTLJ41"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const registerForm = document.getElementById("registrationform");
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const fullname = document.getElementById("full_name").value;
+            const dob = document.getElementById("dob").value;
+            const gender = document.getElementById("gender").value;
+            const address = document.getElementById("address").value;
+            const email = document.getElementById("email").value;
+            const phone = document.getElementById("phone").value;
+            const password = document.getElementById("password").value;
+            const proofOfAgeFile = document.getElementById("proof_of_age").files[0];
+            const proofOfResidenceFile = document.getElementById("proof_of_residence").files[0];
+            const photoFile = document.getElementById("photo").files[0];
+
+            const uploadFile = async (file) => {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+                const response = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+                if (!response.ok) throw new Error("File upload failed");
+                const data = await response.json();
+                return data.secure_url;
+            };
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const [proofOfAgeURL, proofOfResidenceURL, photoURL] = await Promise.all([
+                    uploadFile(proofOfAgeFile),
+                    uploadFile(proofOfResidenceFile),
+                    uploadFile(photoFile),
+                ]);
+
+                const applicationData = {
+                    uid: user.uid,
+                    fullname,
+                    dob,
+                    gender,
+                    address,
+                    email,
+                    password,
+                    phone,
+                    proofOfAgeURL,
+                    proofOfResidenceURL,
+                    photoURL,
+                    timestamp: new Date().toISOString(),
+                };
+
+                await addDoc(collection(db, "voterApplications"), applicationData);
+                alert("Application submitted successfully!");
+                registerForm.reset();
+            } catch (error) {
+                console.error(error);
+                alert("Error submitting application. Please try again.");
+            }
+        });
+    </script>
+
+</body>
+</html>

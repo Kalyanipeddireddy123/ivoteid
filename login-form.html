@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #444;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #3ee164;
+    }
+
+    .auth-navigation {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      padding: 5px;
+    }
+
+    .login, .register-form, .user-details {
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+  </style>
+  <title>Authentication System</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Authentication System</h1>
+
+    <div class="auth-navigation">
+      <button id="login-btn">Login</button>
+    </div>
+
+    <div class="login">
+      <h2>Login</h2>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" required />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+
+    <div class="user-details">
+      <h2>Your Registered Details</h2>
+      <table>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+        </tr>
+        <tbody id="user-details-table"></tbody>
+      </table>
+      <button id="back-to-login">Back</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+    
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyA0XyCf4bb9l14Zievdu7yG5qjSAkLtEhA",
+        authDomain: "voter-id-approval-83138.firebaseapp.com",
+        projectId: "voter-id-approval-83138",
+        storageBucket: "voter-id-approval-83138.firebasestorage.app",
+        messagingSenderId: "864450577257",
+        appId: "1:864450577257:web:bf4749989652626ce033f8",
+        measurementId: "G-9C8RPTLJ41"
+        };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loginBtn = document.getElementById("login-btn");
+    const signupBtn = document.getElementById("signup-btn");
+    const loginForm = document.getElementById("login-form");
+   
+    const userDetailsTable = document.getElementById("user-details-table");
+    const backToLogin = document.getElementById("back-to-login");
+
+    const showSection = (section) => {
+      document.querySelectorAll(".login, .user-details").forEach(el => el.style.display = "none");
+      document.querySelector(section).style.display = "block";
+    };
+
+    loginBtn.addEventListener("click", () => showSection(".login"));
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        const q = query(collection(db, 'voterApplications'), where('uid', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+
+        userDetailsTable.innerHTML = "";
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+              const row = document.createElement("tr");
+              row.innerHTML = `<td>${key}</td><td>${data[key]}</td>`;
+              userDetailsTable.appendChild(row);
+            }
+          }
+        });
+
+        showSection(".user-details");
+      } catch (error) {
+        alert("Login Failed: " + error.message);
+      }
+    });
+
+    backToLogin.addEventListener("click", () => showSection(".login"));
+  </script>
+</body>
+</html>

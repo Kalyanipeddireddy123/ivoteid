@@ -1,0 +1,197 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter ID Status Check</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Section Padding */
+        .section-padding {
+            padding: 40px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Heading Style */
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Paragraph Style */
+        p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Voter ID Status Form */
+        #status-form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        #status-form label {
+            display: block;
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        #status-form input[type="text"],
+        #status-form input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        #status-form input[type="text"]:focus,
+        #status-form input[type="date"]:focus {
+            outline: none;
+            border-color: #3498db;
+            background-color: #fff;
+        }
+
+        #status-form button {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: #fff;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #status-form button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Status Message Section */
+        #status-message {
+            display: none;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        #status-message h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        #status-message p {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Success and Error Messages */
+        #status-message.success {
+            border-left: 5px solid #2ecc71;
+        }
+
+        #status-message.error {
+            border-left: 5px solid #e74c3c;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .section-padding {
+                padding: 30px 10px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            #status-form {
+                padding: 20px;
+            }
+
+            #status-form button {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<!-- Voter ID Status Check Form -->
+<section id="check-status" class="section-padding">
+    <h2>Check Voter ID Status</h2>
+    <p>Enter your application number and date of birth to check the current status of your Voter ID application.</p>
+    
+    <!-- Voter ID Status Form -->
+    <form id="status-form">
+        <label for="application_id">Application Number:</label>
+        <input type="text" id="application_id" name="application_id" placeholder="Enter your application number" required>
+        
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required>
+        
+        <button type="submit" class="btn-primary">Check Status</button>
+    </form>
+    
+    <!-- Status Message Section -->
+    <div id="status-message" style="display: none;">
+        <h3>Status:</h3>
+        <p id="status-text"></p>
+        <p id="reason-text"></p>
+    </div>
+</section>
+
+<script>
+// Sample status check logic
+document.getElementById('status-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent form submission for demo purposes
+    
+    // Get input values
+    var applicationId = document.getElementById('application_id').value;
+    var dob = document.getElementById('dob').value;
+    
+    // For demo purposes, let's assume:
+    // If application ID is "12345" and DOB is "1990-01-01", we will return "Not Approved" with a reason.
+    var statusText = '';
+    var reasonText = '';
+    
+    if (applicationId === "12345" && dob === "1990-01-01") {
+        statusText = 'Your Voter ID application is not approved.';
+        reasonText = 'Reason: Missing required documents (e.g., Proof of Address).';
+    } else {
+        statusText = 'Your Voter ID application is in process.';
+        reasonText = 'You will receive a confirmation once the process is completed.';
+    }
+    
+    // Display the status message
+    document.getElementById('status-message').style.display = 'block';
+    document.getElementById('status-text').textContent = statusText;
+    document.getElementById('reason-text').textContent = reasonText;
+});
+</script>
